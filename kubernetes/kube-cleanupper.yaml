@@ -1,0 +1,73 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kube-cleanupper
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kube-cleanupper
+  namespace: kube-cleanupper
+  labels:
+    app.kubernetes.io/part-of: kube-cleanupper
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kube-cleanupper
+  namespace: kube-cleanupper
+  labels:
+    app.kubernetes.io/part-of: kube-cleanupper
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+# This cluster role binding allows anyone in the "manager" group to read secrets in any namespace.
+kind: ClusterRoleBinding
+metadata:
+  name: kube-cleanupper-crb
+  namespace: kube-cleanupper
+  labels:
+    app.kubernetes.io/part-of: kube-cleanupper
+subjects:
+- kind: ServiceAccount
+  name: kube-cleanupper # Name is case sensitive
+  namespace: kube-cleanupper
+roleRef:
+  kind: ClusterRole
+  name: kube-cleanupper
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: kube-cleanupper
+  namespace: kube-cleanupper
+spec:
+  schedule: "0 0 * * *" # everyday at midnight
+  concurrencyPolicy: "Forbid"
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 100
+      activeDeadlineSeconds: 180 # 3 min <--  Set or decrease .spec.startingDeadlineSeconds or check clock skew
+      template:
+        spec:
+          serviceAccountName: kube-cleanupper
+          containers:
+          - name: kube-cleanupper
+            image: "kube-cleanupper:latest"
+            imagePullPolicy: Always
+            args: ["-d", "4"] # Will delete objects older then 4 days with label auto-clean=enabled and retention label is applied.
+            resources:
+              limits:
+                cpu: 250m
+                memory: 1Gi
+              requests:
+                cpu: 125m
+                memory: 512Mi
+          restartPolicy: OnFailure
+          imagePullSecrets:
+            - name: <DOCKER_HUB_SECRETSD>
