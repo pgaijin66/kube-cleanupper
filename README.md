@@ -29,6 +29,8 @@ retention=4d
 `auto-clean=enabled` label needs to be applied to namespace. This is how kube-cleanupper will know if it has to look into that namespace or not. This can be done manually or through manifests file. This can be done using following methods.
 
 
+For example: 
+
 Applying label to namespace via CLI
 
 
@@ -52,37 +54,16 @@ Applying label to namespace via manifest
 
 `auto-clean=enabled` and `retention=4d` labels must be applied to all k8s objects which you want to be auto managed / cleanedup using kube-cleanupper. This can be done using following methods.
 
-
-Applying label to k8s objects using command line:
-
-
-    ```
-    kubectl label deployment <deployment> auto-clean=enabled retention=4d
-    ```
-    
-
-    Applying label to k8s objects using manifest:
-
-
-    ```
-      labels:
-        auto-clean: enabled
-        retention: 4d
-    ```
-    
-## Caution
-
-Be aware that kube-cleanupper is a very destructive tool, hence you need to be very careful when using it. Usage without proper understaning of tool might cause deletion of production data. Do not use kube-cleanupper to manage production namespace.
-
 ## Usage
 
 ```
-Usage: kube-cleanupper [-d <no_of_days>] 
+Usage: kube-cleanupper [-d <no_of_days>] [-f]
 
 Options:
                     -h                     Display this help message.
-                    -d <no_of_days>        Deletes all kubernetes objects with labels auto-clean=enabled and age over given retention period.
-                    -f                                                                                                                                                 
+                    -d <no_of_days>        Sets an artificial retention period, overriding the label attached to an object.
+                                           This therefore simulates if the K8s object was labeled with a retention time of this no_of_days
+                    -f                     Forces all objects with no retention defined to use the -d param as their retention period.                                                                                                                                            
 ```
 
 ## Usage via cli
