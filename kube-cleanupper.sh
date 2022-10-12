@@ -178,7 +178,7 @@ function delete_k8s_objs_with_labels {
     # And finally, we're ready to delete them!
     info "Printing all the items that should be deleted!"
     while read -r obj_delete_string; do
-      kubectl delete $obj_delete_string  # this needs to be unquoted, so things expand out properly.
+      kubectl delete "$obj_delete_string"  # this needs to be unquoted, so things expand out properly.
     done < <(echo "$all_objects_to_clean")
 }
 
