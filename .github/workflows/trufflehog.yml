@@ -1,0 +1,23 @@
+---
+# Scans for secrets in file as well as in commit history
+name: truffelhog
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+
+jobs:
+  detect-secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+      - name: trufflehog-actions-scan
+        uses: edplato/trufflehog-actions-scan@master
+        with:
+          scanArguments: "--regex --entropy=False --max_depth=5 --rules /regexes.json" # Add custom options here*
