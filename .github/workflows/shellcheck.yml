@@ -1,5 +1,5 @@
 ---
-name: "Trigger: Push action"
+name: "Shellcheck"
 
 on: [push]
 
